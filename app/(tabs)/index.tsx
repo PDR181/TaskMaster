@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, Button, FlatList } from 'react-native';
-import { useState } from 'react';
 import { Link } from 'expo-router';
+import { useTasks } from '../../contexts/TaskContext';
 
 // Modelo de tarefa
 type Task = {
@@ -11,23 +11,9 @@ type Task = {
   concluida: boolean;
 };
 
+// Remove as props, usa context!
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      titulo: 'Estudar React Native',
-      descricao: 'Assistir aula e praticar 30 min',
-      prioridade: 'alta',
-      concluida: false,
-    },
-    {
-      id: '2',
-      titulo: 'Criar telas do TaskMaster',
-      descricao: 'Home, Nova Tarefa e Editar',
-      prioridade: 'media',
-      concluida: false,
-    },
-  ]);
+  const { tasks } = useTasks(); // ← Agora usa context!
 
   return (
     <View style={styles.container}>
@@ -35,9 +21,8 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>Gerencie suas tarefas do dia a dia</Text>
 
       <View style={styles.actions}>
-        {/* depois esse Link vai apontar para a tela de Nova Tarefa */}
         <Link href="/nova-tarefa" asChild>
-          <Button title="Adicionar tarefa" onPress={() => {}} />
+          <Button title="Adicionar tarefa" />
         </Link>
       </View>
 
