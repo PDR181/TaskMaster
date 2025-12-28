@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# TaskMaster
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+TaskMaster é um app To-Do minimalista em React Native + Expo com CRUD completo (Criar, Listar, Editar, Excluir), tags de prioridade e navegação entre telas usando apenas componentes básicos (View, TextInput, Button).
 
-## Get started
+---
 
-1. Install dependencies
+## Como começar
 
-   ```bash
-   npm install
-   ```
+1. Instalar dependências
 
-2. Start the app
+npm install
 
-   ```bash
-   npx expo start
-   ```
 
-In the output, you'll find options to open the app in a
+2. Iniciar o app
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+npx expo start
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+No output, você pode abrir o app em:
 
-When you're ready, run:
+- development build
+- emulador Android
+- simulador iOS
+- Expo Go
 
-```bash
+O desenvolvimento é feito editando os arquivos dentro do diretório **app**, usando o sistema de rotas baseado em arquivos (file-based routing) do Expo Router.
+
+---
+
+## Resetar o projeto de exemplo
+
+Quando quiser um projeto em branco:
+
 npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+Esse comando move o código de exemplo para **app-example** e deixa a pasta **app** vazia para você desenvolver.
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Tecnologias
 
-## Join the community
+- React Native
+- Expo (SDK recente)
+- TypeScript (template padrão do Expo Router)
+- Componentes básicos: View, Text, TextInput, Button, etc.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Objetivo do projeto
+
+- Praticar fundamentos de desenvolvimento mobile com React Native + Expo.  
+- Implementar um CRUD completo de tarefas.  
+- Organizar a arquitetura em telas: Home (lista), Nova Tarefa, Editar Tarefa.  
+- Evoluir depois para filtros, temas e, futuramente, autenticação.
+
+---
+
+## Recursos úteis
+
+- Documentação do Expo: https://docs.expo.dev/  
+- Tutorial “Learn Expo”: https://docs.expo.dev/tutorial/introduction/  
+- Comunidade (Discord): https://chat.expo.dev  
+- Repositório do Expo: https://github.com/expo/expo
