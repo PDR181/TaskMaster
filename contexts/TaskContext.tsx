@@ -12,6 +12,7 @@ type Task = {
 type TaskContextType = {
   tasks: Task[];
   addTask: (task: Task) => void;
+  toggleTask: (id: string) => void; // ← NOVO!
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -38,8 +39,19 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     setTasks(prev => [...prev, novaTask]);
   };
 
+  // ← NOVA FUNÇÃO!
+  const toggleTask = (id: string) => {
+    setTasks(prev => 
+      prev.map(task => 
+        task.id === id 
+          ? { ...task, concluida: !task.concluida }
+          : task
+      )
+    );
+  };
+
   return (
-    <TaskContext.Provider value={{ tasks, addTask }}>
+    <TaskContext.Provider value={{ tasks, addTask, toggleTask }}>
       {children}
     </TaskContext.Provider>
   );

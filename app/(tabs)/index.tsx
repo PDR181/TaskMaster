@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Button, FlatList } from 'react-native';
+import { StyleSheet, View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
 import { Link } from 'expo-router';
 import { useTasks } from '../../contexts/TaskContext';
 
@@ -11,9 +11,8 @@ type Task = {
   concluida: boolean;
 };
 
-// Remove as props, usa context!
 export default function HomeScreen() {
-  const { tasks } = useTasks(); // ← Agora usa context!
+  const { tasks, toggleTask } = useTasks(); // ← toggleTask adicionado!
 
   return (
     <View style={styles.container}>
@@ -31,17 +30,44 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={styles.taskCard}>
-            <Text style={[styles.taskTitle, item.concluida && styles.taskDone]}>
-              {item.titulo}
-            </Text>
-            {item.descricao ? (
-              <Text style={styles.taskDescription}>{item.descricao}</Text>
-            ) : null}
-            <Text style={styles.taskPriority}>
-              Prioridade: {item.prioridade}
-            </Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.taskCard}
+            onPress={() => toggleTask(item.id)} // ← Clique toggle!
+            activeOpacity={0.7}
+          >
+            <View style={styles.taskRow}>
+              {/* Checkbox */}
+              <View style={[
+                styles.checkbox,
+                item.concluida && styles.checkboxChecked
+              ]}>
+                {item.concluida && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </View>
+              
+              {/* Conteúdo da tarefa */}
+              <View style={styles.taskContent}>
+                <Text style={[styles.taskTitle, item.concluida && styles.taskDone]}>
+                  {item.titulo}
+                </Text>
+                {item.descricao ? (
+                  <Text style={[
+                    styles.taskDescription, 
+                    item.concluida && styles.taskDescriptionDone
+                  ]}>
+                    {item.descricao}
+                  </Text>
+                ) : null}
+                <Text style={[
+                  styles.taskPriority,
+                  item.concluida && styles.taskPriorityDone
+                ]}>
+                  Prioridade: {item.prioridade}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>
@@ -78,23 +104,55 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
   },
+  taskRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#6b7280',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#10b981',
+    borderColor: '#059669',
+  },
+  checkmark: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  taskContent: {
+    flex: 1,
+  },
   taskTitle: {
     color: '#e5e7eb',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  taskDone: {
+    textDecorationLine: 'line-through',
+    color: '#6b7280',
   },
   taskDescription: {
     color: '#9ca3af',
     fontSize: 14,
     marginTop: 4,
   },
+  taskDescriptionDone: {
+    color: '#6b7280',
+  },
   taskPriority: {
     color: '#facc15',
     fontSize: 12,
     marginTop: 4,
   },
-  taskDone: {
-    textDecorationLine: 'line-through',
+  taskPriorityDone: {
     color: '#6b7280',
   },
 });
