@@ -12,12 +12,18 @@ type Task = {
 };
 
 export default function HomeScreen() {
-  const { tasks, toggleTask } = useTasks();
+  const { tasks, toggleTask, totalTasks, completedTasks } = useTasks();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>TaskMaster</Text>
-      <Text style={styles.subtitle}>Gerencie suas tarefas do dia a dia</Text>
+      {/* ← HEADER COM CONTADOR NOVO! */}
+      <View style={styles.header}>
+        <Text style={styles.title}>TaskMaster</Text>
+        <Text style={styles.stats}>
+          📊 {totalTasks} tarefas | {completedTasks} concluídas
+        </Text>
+        <Text style={styles.subtitle}>Gerencie suas tarefas do dia a dia</Text>
+      </View>
 
       <View style={styles.actions}>
         <Link href="/nova-tarefa" asChild>
@@ -85,16 +91,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: '#020617',
   },
+  // ← NOVO ESTILO HEADER!
+  header: {
+    marginBottom: 16,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#e5e7eb',
   },
+  // ← NOVO ESTILO CONTADOR!
+  stats: {
+    fontSize: 14,
+    color: '#10b981',
+    fontWeight: '600',
+    marginTop: 4,
+    marginBottom: 8,
+  },
   subtitle: {
     fontSize: 14,
     color: '#9ca3af',
     marginTop: 4,
-    marginBottom: 16,
   },
   actions: {
     marginBottom: 16,

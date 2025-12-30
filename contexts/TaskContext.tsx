@@ -14,6 +14,9 @@ type TaskContextType = {
   tasks: Task[];
   addTask: (task: Task) => void;
   toggleTask: (id: string) => void;
+  totalTasks: number;      // ← NOVO!
+  completedTasks: number;  // ← NOVO!
+  pendingTasks: number;    // ← NOVO!
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -88,8 +91,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // ← CONTADORES (calculados automaticamente!)
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(task => task.concluida).length;
+  const pendingTasks = totalTasks - completedTasks;
+
   return (
-    <TaskContext.Provider value={{ tasks, addTask, toggleTask }}>
+    <TaskContext.Provider value={{ tasks, addTask, toggleTask, totalTasks, completedTasks, pendingTasks }}>
       {children}
     </TaskContext.Provider>
   );
