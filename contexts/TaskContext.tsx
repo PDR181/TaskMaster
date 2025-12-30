@@ -12,11 +12,13 @@ type Task = {
 
 type TaskContextType = {
   tasks: Task[];
+  filteredTasks: Task[];        // ← NOVO!
   addTask: (task: Task) => void;
   toggleTask: (id: string) => void;
-  totalTasks: number;      // ← NOVO!
-  completedTasks: number;  // ← NOVO!
-  pendingTasks: number;    // ← NOVO!
+  setFilter: (filter: 'todas' | 'alta' | 'media' | 'baixa') => void;  // ← NOVO!
+  totalTasks: number;
+  completedTasks: number;
+  pendingTasks: number;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ const TASKS_KEY = '@taskmaster:tasks';
 
 export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<'todas' | 'alta' | 'media' | 'baixa'>('todas');  // ← NOVO!
 
   // ← CARREGA tarefas do storage na inicialização
   useEffect(() => {
@@ -37,6 +40,12 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       saveTasks(tasks);
     }
   }, [tasks]);
+
+  // ← FILTRAGEM automática quando tasks ou filter mudam
+  const filteredTasks = tasks.filter(task => {
+    if (filter === 'todas') return true;
+    return task.prioridade === filter;
+  });
 
   const loadTasks = async () => {
     try {
@@ -97,10 +106,20 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const pendingTasks = totalTasks - completedTasks;
 
   return (
-    <TaskContext.Provider value={{ tasks, addTask, toggleTask, totalTasks, completedTasks, pendingTasks }}>
+    <TaskContext.Provider value={{ 
+      tasks, 
+      filteredTasks,
+      filter,        // ← ADICIONE ESTA LINHA!
+      setFilter,
+      addTask, 
+      toggleTask, 
+      totalTasks, 
+      completedTasks, 
+      pendingTasks 
+    }}>
       {children}
     </TaskContext.Provider>
-  );
+);
 }
 
 export function useTasks() {

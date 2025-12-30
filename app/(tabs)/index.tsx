@@ -12,16 +12,44 @@ type Task = {
 };
 
 export default function HomeScreen() {
-  const { tasks, toggleTask, totalTasks, completedTasks } = useTasks();
+  const { filteredTasks, toggleTask, totalTasks, completedTasks, setFilter, filter } = useTasks();
 
   return (
     <View style={styles.container}>
-      {/* ← HEADER COM CONTADOR NOVO! */}
+      {/* ← HEADER COM ABAS DE FILTRO! */}
       <View style={styles.header}>
         <Text style={styles.title}>TaskMaster</Text>
+        
+        {/* ← CONTADOR (permanece) */}
         <Text style={styles.stats}>
           📊 {totalTasks} tarefas | {completedTasks} concluídas
         </Text>
+        
+        {/* ← ABAS DE FILTRO NOVAS! */}
+        <View style={styles.filterTabs}>
+          {(['todas', 'alta', 'media', 'baixa'] as const).map((tab) => {
+            const isActive = filter === tab; // ← Pega do context
+            return (
+              <TouchableOpacity
+                key={tab}
+                style={[
+                  styles.filterTab,
+                  isActive && styles.filterTabActive
+                ]}
+                onPress={() => setFilter(tab)}
+              >
+                <Text style={[
+                  styles.filterTabText,
+                  isActive && styles.filterTabTextActive
+                ]}>
+                  {tab === 'todas' ? 'Todas' : 
+                   tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        
         <Text style={styles.subtitle}>Gerencie suas tarefas do dia a dia</Text>
       </View>
 
@@ -32,7 +60,7 @@ export default function HomeScreen() {
       </View>
 
       <FlatList
-        data={tasks}
+        data={filteredTasks}  // ← MUDOU: filteredTasks ao invés de tasks!
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
@@ -91,7 +119,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: '#020617',
   },
-  // ← NOVO ESTILO HEADER!
   header: {
     marginBottom: 16,
   },
@@ -100,13 +127,43 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#e5e7eb',
   },
-  // ← NOVO ESTILO CONTADOR!
   stats: {
     fontSize: 14,
     color: '#10b981',
     fontWeight: '600',
     marginTop: 4,
     marginBottom: 8,
+  },
+  // ← ESTILOS DAS ABAS NOVOS!
+  filterTabs: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  filterTab: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#0f172a',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  filterTabActive: {
+    backgroundColor: '#10b981',
+    borderColor: '#059669',
+  },
+  filterTabText: {
+    color: '#9ca3af',
+    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  filterTabTextActive: {
+    color: '#020617',
+    fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 14,
