@@ -12,10 +12,11 @@ type Task = {
 
 type TaskContextType = {
   tasks: Task[];
-  filteredTasks: Task[];        // ← NOVO!
+  filteredTasks: Task[];
   addTask: (task: Task) => void;
   toggleTask: (id: string) => void;
-  setFilter: (filter: 'todas' | 'alta' | 'media' | 'baixa') => void;  // ← NOVO!
+  updateTask: (id: string, updatedTask: Partial<Task>) => void;  // ← NOVO!
+  setFilter: (filter: 'todas' | 'alta' | 'media' | 'baixa') => void;
   totalTasks: number;
   completedTasks: number;
   pendingTasks: number;
@@ -27,7 +28,7 @@ const TASKS_KEY = '@taskmaster:tasks';
 
 export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<'todas' | 'alta' | 'media' | 'baixa'>('todas');  // ← NOVO!
+  const [filter, setFilter] = useState<'todas' | 'alta' | 'media' | 'baixa'>('todas');
 
   // ← CARREGA tarefas do storage na inicialização
   useEffect(() => {
@@ -100,6 +101,17 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // ← NOVA FUNÇÃO UPDATE!
+  const updateTask = (id: string, updatedTask: Partial<Task>) => {
+    setTasks(prev => 
+      prev.map(task => 
+        task.id === id 
+          ? { ...task, ...updatedTask }
+          : task
+      )
+    );
+  };
+
   // ← CONTADORES (calculados automaticamente!)
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(task => task.concluida).length;
@@ -109,17 +121,18 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     <TaskContext.Provider value={{ 
       tasks, 
       filteredTasks,
-      filter,        // ← ADICIONE ESTA LINHA!
+      filter,
       setFilter,
       addTask, 
       toggleTask, 
+      updateTask,  // ← NOVO!
       totalTasks, 
       completedTasks, 
       pendingTasks 
     }}>
       {children}
     </TaskContext.Provider>
-);
+  );
 }
 
 export function useTasks() {

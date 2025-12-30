@@ -13,7 +13,7 @@ type Task = {
 
 export default function EditarTarefaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { tasks, toggleTask } = useTasks();
+  const { tasks, updateTask, toggleTask } = useTasks();  // ← updateTask adicionado!
   
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -39,14 +39,22 @@ export default function EditarTarefaScreen() {
     router.back();
   }
 
+  // ← EDIÇÃO REAL FUNCIONANDO!
   function handleSalvar() {
     if (!titulo.trim()) {
       Alert.alert('Erro', 'Título é obrigatório');
       return;
     }
 
-    // ← ATUALIZA tarefa no context
-    // (Vamos implementar updateTask na próxima tarefa)
+    const updatedTask: Partial<Task> = {
+      titulo: titulo.trim(),
+      descricao: descricao.trim() || undefined,
+      prioridade,
+      concluida,
+    };
+
+    updateTask(id!, updatedTask);  // ← ATUALIZA no Context!
+    
     Alert.alert('Sucesso', 'Tarefa atualizada!');
     router.back();
   }
@@ -142,6 +150,7 @@ export default function EditarTarefaScreen() {
   );
 }
 
+// Styles iguais (mantidos)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
