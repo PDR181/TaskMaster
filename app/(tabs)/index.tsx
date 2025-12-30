@@ -12,7 +12,7 @@ type Task = {
 };
 
 export default function HomeScreen() {
-  const { tasks, toggleTask } = useTasks(); // ← toggleTask adicionado!
+  const { tasks, toggleTask } = useTasks();
 
   return (
     <View style={styles.container}>
@@ -30,44 +30,48 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={styles.taskCard}
-            onPress={() => toggleTask(item.id)} // ← Clique toggle!
-            activeOpacity={0.7}
-          >
+          <View style={styles.taskCard}>
             <View style={styles.taskRow}>
-              {/* Checkbox */}
-              <View style={[
-                styles.checkbox,
-                item.concluida && styles.checkboxChecked
-              ]}>
+              {/* Checkbox CLICÁVEL APENAS AQUI! */}
+              <TouchableOpacity
+                style={[
+                  styles.checkbox,
+                  item.concluida && styles.checkboxChecked,
+                ]}
+                onPress={() => toggleTask(item.id)}
+                activeOpacity={0.7}
+              >
                 {item.concluida && (
                   <Text style={styles.checkmark}>✓</Text>
                 )}
-              </View>
-              
-              {/* Conteúdo da tarefa */}
+              </TouchableOpacity>
+
+              {/* Conteúdo NÃO clicável */}
               <View style={styles.taskContent}>
                 <Text style={[styles.taskTitle, item.concluida && styles.taskDone]}>
                   {item.titulo}
                 </Text>
                 {item.descricao ? (
-                  <Text style={[
-                    styles.taskDescription, 
-                    item.concluida && styles.taskDescriptionDone
-                  ]}>
+                  <Text
+                    style={[
+                      styles.taskDescription,
+                      item.concluida && styles.taskDescriptionDone,
+                    ]}
+                  >
                     {item.descricao}
                   </Text>
                 ) : null}
-                <Text style={[
-                  styles.taskPriority,
-                  item.concluida && styles.taskPriorityDone
-                ]}>
+                <Text
+                  style={[
+                    styles.taskPriority,
+                    item.concluida && styles.taskPriorityDone,
+                  ]}
+                >
                   Prioridade: {item.prioridade}
                 </Text>
               </View>
             </View>
-          </TouchableOpacity>
+          </View>
         )}
       />
     </View>
