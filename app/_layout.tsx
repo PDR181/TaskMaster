@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
           <Stack.Screen name="nova-tarefa" options={{ title: 'Nova Tarefa' }} />
+          <Stack.Screen name="editar-tarefa" options={{ title: 'Editar Tarefa' }} />  {/* ← NOVO! */}
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

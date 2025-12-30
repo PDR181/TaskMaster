@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';  // ← router adicionado!
 import { useTasks } from '../../contexts/TaskContext';
 
 // Modelo de tarefa
@@ -28,7 +28,7 @@ export default function HomeScreen() {
         {/* ← ABAS DE FILTRO NOVAS! */}
         <View style={styles.filterTabs}>
           {(['todas', 'alta', 'media', 'baixa'] as const).map((tab) => {
-            const isActive = filter === tab; // ← Pega do context
+            const isActive = filter === tab;
             return (
               <TouchableOpacity
                 key={tab}
@@ -60,7 +60,7 @@ export default function HomeScreen() {
       </View>
 
       <FlatList
-        data={filteredTasks}  // ← MUDOU: filteredTasks ao invés de tasks!
+        data={filteredTasks}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
@@ -80,11 +80,23 @@ export default function HomeScreen() {
                 )}
               </TouchableOpacity>
 
-              {/* Conteúdo NÃO clicável */}
+              {/* Conteúdo */}
               <View style={styles.taskContent}>
-                <Text style={[styles.taskTitle, item.concluida && styles.taskDone]}>
-                  {item.titulo}
-                </Text>
+                {/* ← TÍTULO CLICÁVEL PARA EDITAR! */}
+                <TouchableOpacity 
+                  onPress={() => router.push(`/editar-tarefa?id=${item.id}`)}
+                  activeOpacity={0.7}
+                  disabled={item.concluida} // ← Não clica se concluída
+                >
+                  <Text style={[
+                    styles.taskTitle, 
+                    item.concluida && styles.taskDone,
+                    !item.concluida && styles.taskTitleClickable  // ← Subtil feedback
+                  ]}>
+                    {item.titulo}
+                  </Text>
+                </TouchableOpacity>
+                
                 {item.descricao ? (
                   <Text
                     style={[
@@ -134,7 +146,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 8,
   },
-  // ← ESTILOS DAS ABAS NOVOS!
   filterTabs: {
     flexDirection: 'row',
     gap: 8,
@@ -212,6 +223,9 @@ const styles = StyleSheet.create({
     color: '#e5e7eb',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  taskTitleClickable: {  // ← NOVO!
+    textDecorationLine: 'underline',
   },
   taskDone: {
     textDecorationLine: 'line-through',
