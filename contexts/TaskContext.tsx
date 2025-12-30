@@ -15,7 +15,8 @@ type TaskContextType = {
   filteredTasks: Task[];
   addTask: (task: Task) => void;
   toggleTask: (id: string) => void;
-  updateTask: (id: string, updatedTask: Partial<Task>) => void;  // ← NOVO!
+  updateTask: (id: string, updatedTask: Partial<Task>) => void;
+  deleteTask: (id: string) => void;  // ← NOVO!
   setFilter: (filter: 'todas' | 'alta' | 'media' | 'baixa') => void;
   totalTasks: number;
   completedTasks: number;
@@ -101,7 +102,6 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  // ← NOVA FUNÇÃO UPDATE!
   const updateTask = (id: string, updatedTask: Partial<Task>) => {
     setTasks(prev => 
       prev.map(task => 
@@ -110,6 +110,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
           : task
       )
     );
+  };
+
+  // ← NOVA FUNÇÃO DELETE!
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(task => task.id !== id));
   };
 
   // ← CONTADORES (calculados automaticamente!)
@@ -125,7 +130,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       setFilter,
       addTask, 
       toggleTask, 
-      updateTask,  // ← NOVO!
+      updateTask, 
+      deleteTask,  // ← NOVO!
       totalTasks, 
       completedTasks, 
       pendingTasks 

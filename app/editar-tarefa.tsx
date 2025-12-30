@@ -13,15 +13,15 @@ type Task = {
 
 export default function EditarTarefaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { tasks, updateTask, toggleTask } = useTasks();  // ← updateTask adicionado!
+  const { tasks, updateTask, deleteTask } = useTasks();
   
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [prioridade, setPrioridade] = useState<'baixa' | 'media' | 'alta'>('media');
   const [concluida, setConcluida] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // ← NOVO!
 
-  // ← CARREGA dados da tarefa ao abrir tela
   useEffect(() => {
     if (id) {
       const task = tasks.find(t => t.id === id);
@@ -39,7 +39,6 @@ export default function EditarTarefaScreen() {
     router.back();
   }
 
-  // ← EDIÇÃO REAL FUNCIONANDO!
   function handleSalvar() {
     if (!titulo.trim()) {
       Alert.alert('Erro', 'Título é obrigatório');
@@ -53,11 +52,23 @@ export default function EditarTarefaScreen() {
       concluida,
     };
 
-    updateTask(id!, updatedTask);  // ← ATUALIZA no Context!
-    
+    updateTask(id!, updatedTask);
     Alert.alert('Sucesso', 'Tarefa atualizada!');
     router.back();
   }
+
+  // ← MODAL BONITO UNIFICADO!
+  function handleExcluir() {
+    console.log('🗑️ ID da tarefa:', id);
+    setShowDeleteModal(true);
+  }
+
+  function confirmDelete() {
+  console.log('🔥 EXCLUINDO:', id);
+  deleteTask(id!);
+  setShowDeleteModal(false);
+  router.back();
+}
 
   if (loading) {
     return (
@@ -138,6 +149,7 @@ export default function EditarTarefaScreen() {
         <TouchableOpacity style={styles.botaoCancelar} onPress={handleCancelar}>
           <Text style={styles.botaoCancelarText}>Cancelar</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity 
           style={[styles.botaoSalvar, !titulo.trim() && styles.botaoSalvarDisabled]} 
           onPress={handleSalvar}
@@ -145,12 +157,51 @@ export default function EditarTarefaScreen() {
         >
           <Text style={styles.botaoSalvarText}>Salvar</Text>
         </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.botaoExcluir} onPress={handleExcluir}>
+          <Text style={styles.botaoExcluirText}>🗑️ Excluir</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* ← MODAL BONITO PERSONALIZADO! */}
+      {showDeleteModal && (
+        <>
+          <TouchableOpacity 
+            style={styles.modalOverlay} 
+            activeOpacity={1}
+            onPress={() => setShowDeleteModal(false)}
+          />
+          <View style={styles.deleteModal}>
+            <Text style={styles.modalTitle}>🗑️ Confirmar exclusão</Text>
+            <Text style={styles.modalMessage}>
+              Excluir "{titulo}"?
+            </Text>
+            <Text style={styles.modalWarning}>
+              Esta ação não pode ser desfeita
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancel} 
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.modalDelete} 
+                onPress={confirmDelete}
+              >
+                <Text style={styles.modalDeleteText}>Excluir</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 }
 
-// Styles iguais (mantidos)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -257,7 +308,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 32,
-    gap: 12,
+    gap: 8,
   },
   botaoCancelar: {
     flex: 1,
@@ -282,6 +333,89 @@ const styles = StyleSheet.create({
     backgroundColor: '#4b5563',
   },
   botaoSalvarText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  botaoExcluir: {
+    flex: 1,
+    backgroundColor: '#ef4444',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  botaoExcluirText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // ← ESTILOS DO MODAL BONITO!
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    zIndex: 1000,
+  },
+  deleteModal: {
+    position: 'absolute',
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 24,
+    width: '85%',
+    maxWidth: 400,
+    alignItems: 'center',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+    zIndex: 1001,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#e5e7eb',
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: '#e5e7eb',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalWarning: {
+    fontSize: 14,
+    color: '#ef4444',
+    textAlign: 'center',
+    marginBottom: 24,
+    fontWeight: '500',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancel: {
+    flex: 1,
+    backgroundColor: '#374151',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    color: '#9ca3af',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalDelete: {
+    flex: 1,
+    backgroundColor: '#ef4444',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalDeleteText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',

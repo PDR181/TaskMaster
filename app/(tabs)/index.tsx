@@ -1,8 +1,7 @@
-import { StyleSheet, View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
-import { Link, router } from 'expo-router';  // ← router adicionado!
+import { StyleSheet, View, Text, Button, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { Link, router } from 'expo-router';
 import { useTasks } from '../../contexts/TaskContext';
 
-// Modelo de tarefa
 type Task = {
   id: string;
   titulo: string;
@@ -12,7 +11,25 @@ type Task = {
 };
 
 export default function HomeScreen() {
-  const { filteredTasks, toggleTask, totalTasks, completedTasks, setFilter, filter } = useTasks();
+  const { filteredTasks, toggleTask, totalTasks, completedTasks, setFilter, filter, deleteTask } = useTasks();
+
+  // ← FUNÇÃO DELETE DA LISTA!
+  function handleDeleteTask(taskId: string, taskTitle: string) {
+    Alert.alert(
+      'Excluir tarefa',
+      `Remover "${taskTitle}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            deleteTask(taskId);
+          }
+        }
+      ]
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -66,7 +83,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <View style={styles.taskCard}>
             <View style={styles.taskRow}>
-              {/* Checkbox CLICÁVEL APENAS AQUI! */}
+              {/* Checkbox CLICÁVEL */}
               <TouchableOpacity
                 style={[
                   styles.checkbox,
@@ -82,40 +99,44 @@ export default function HomeScreen() {
 
               {/* Conteúdo */}
               <View style={styles.taskContent}>
-                {/* ← TÍTULO CLICÁVEL PARA EDITAR! */}
                 <TouchableOpacity 
-                  onPress={() => router.push(`/editar-tarefa?id=${item.id}`)}
+                  onPress={() => router.push({ pathname: '/editar-tarefa', params: { id: item.id } })}
                   activeOpacity={0.7}
-                  disabled={item.concluida} // ← Não clica se concluída
+                  disabled={item.concluida}
                 >
                   <Text style={[
                     styles.taskTitle, 
                     item.concluida && styles.taskDone,
-                    !item.concluida && styles.taskTitleClickable  // ← Subtil feedback
+                    !item.concluida && styles.taskTitleClickable
                   ]}>
                     {item.titulo}
                   </Text>
                 </TouchableOpacity>
                 
                 {item.descricao ? (
-                  <Text
-                    style={[
-                      styles.taskDescription,
-                      item.concluida && styles.taskDescriptionDone,
-                    ]}
-                  >
+                  <Text style={[
+                    styles.taskDescription,
+                    item.concluida && styles.taskDescriptionDone,
+                  ]}>
                     {item.descricao}
                   </Text>
                 ) : null}
-                <Text
-                  style={[
-                    styles.taskPriority,
-                    item.concluida && styles.taskPriorityDone,
-                  ]}
-                >
+                <Text style={[
+                  styles.taskPriority,
+                  item.concluida && styles.taskPriorityDone,
+                ]}>
                   Prioridade: {item.prioridade}
                 </Text>
               </View>
+
+              {/* ← ÍCONE 🗑️ NO CANTO DIREITO! */}
+              <TouchableOpacity
+                style={styles.deleteIcon}
+                onPress={() => handleDeleteTask(item.id, item.titulo)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.deleteIconText}>🗑️</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -224,7 +245,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  taskTitleClickable: {  // ← NOVO!
+  taskTitleClickable: {
     textDecorationLine: 'underline',
   },
   taskDone: {
@@ -246,5 +267,21 @@ const styles = StyleSheet.create({
   },
   taskPriorityDone: {
     color: '#6b7280',
+  },
+  // ← NOVOS ESTILOS ÍCONE 🗑️!
+  deleteIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  deleteIconText: {
+    fontSize: 18,
+    color: '#ef4444',
   },
 });
