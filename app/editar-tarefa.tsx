@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTasks } from '../contexts/TaskContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type Task = {
   id: string;
@@ -9,18 +10,33 @@ type Task = {
   descricao?: string;
   prioridade: 'baixa' | 'media' | 'alta';
   concluida: boolean;
+  dataVencimento?: string; // "YYYY-MM-DD"
 };
+
+function toYYYYMMDD(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 export default function EditarTarefaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { tasks, updateTask, deleteTask } = useTasks();
-  
+
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [prioridade, setPrioridade] = useState<'baixa' | 'media' | 'alta'>('media');
   const [concluida, setConcluida] = useState(false);
+
+  // Data como string (igual ao app inteiro)
+  const [dataVencimento, setDataVencimento] = useState(''); // "YYYY-MM-DD"
+  const [showPicker, setShowPicker] = useState(false);
+
   const [loading, setLoading] = useState(true);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // ← NOVO!
+
+  // Modal bonito de delete
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -30,6 +46,7 @@ export default function EditarTarefaScreen() {
         setDescricao(task.descricao || '');
         setPrioridade(task.prioridade);
         setConcluida(task.concluida);
+        setDataVencimento(task.dataVencimento || '');
       }
       setLoading(false);
     }
@@ -50,6 +67,7 @@ export default function EditarTarefaScreen() {
       descricao: descricao.trim() || undefined,
       prioridade,
       concluida,
+      dataVencimento: dataVencimento.trim() ? dataVencimento.trim() : undefined,
     };
 
     updateTask(id!, updatedTask);
@@ -57,18 +75,15 @@ export default function EditarTarefaScreen() {
     router.back();
   }
 
-  // ← MODAL BONITO UNIFICADO!
   function handleExcluir() {
-    console.log('🗑️ ID da tarefa:', id);
     setShowDeleteModal(true);
   }
 
   function confirmDelete() {
-  console.log('🔥 EXCLUINDO:', id);
-  deleteTask(id!);
-  setShowDeleteModal(false);
-  router.back();
-}
+    deleteTask(id!);
+    setShowDeleteModal(false);
+    router.back();
+  }
 
   if (loading) {
     return (
@@ -100,6 +115,49 @@ export default function EditarTarefaScreen() {
         onChangeText={setDescricao}
         multiline
       />
+
+      <Text style={styles.label}>Data de vencimento (opcional)</Text>
+
+      {Platform.OS === 'web' ? (
+        <TextInput
+          style={styles.input}
+          placeholder="AAAA-MM-DD (ex: 2026-01-10)"
+          placeholderTextColor="#6b7280"
+          value={dataVencimento}
+          onChangeText={setDataVencimento}
+        />
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.input}
+            activeOpacity={0.7}
+            onPress={() => setShowPicker(true)}
+          >
+            <Text style={{ color: dataVencimento ? '#e5e7eb' : '#6b7280', fontSize: 16 }}>
+              {dataVencimento ? dataVencimento : 'Selecionar data'}
+            </Text>
+          </TouchableOpacity>
+
+          {showPicker && (
+            <DateTimePicker
+              value={dataVencimento ? new Date(`${dataVencimento}T12:00:00`) : new Date()}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                // Fecha quando cancela/dismiss [web:215]
+                if ((event as any)?.type === 'dismissed') {
+                  setShowPicker(false);
+                  return;
+                }
+                if (selectedDate) {
+                  setDataVencimento(toYYYYMMDD(selectedDate));
+                }
+                setShowPicker(false);
+              }}
+            />
+          )}
+        </>
+      )}
 
       <Text style={styles.label}>Prioridade</Text>
       <View style={styles.prioridadeContainer}>
@@ -149,47 +207,43 @@ export default function EditarTarefaScreen() {
         <TouchableOpacity style={styles.botaoCancelar} onPress={handleCancelar}>
           <Text style={styles.botaoCancelarText}>Cancelar</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.botaoSalvar, !titulo.trim() && styles.botaoSalvarDisabled]} 
+
+        <TouchableOpacity
+          style={[styles.botaoSalvar, !titulo.trim() && styles.botaoSalvarDisabled]}
           onPress={handleSalvar}
           disabled={!titulo.trim()}
         >
           <Text style={styles.botaoSalvarText}>Salvar</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.botaoExcluir} onPress={handleExcluir}>
           <Text style={styles.botaoExcluirText}>🗑️ Excluir</Text>
         </TouchableOpacity>
       </View>
 
-      {/* ← MODAL BONITO PERSONALIZADO! */}
+      {/* MODAL BONITO PERSONALIZADO */}
       {showDeleteModal && (
         <>
-          <TouchableOpacity 
-            style={styles.modalOverlay} 
+          <TouchableOpacity
+            style={styles.modalOverlay}
             activeOpacity={1}
             onPress={() => setShowDeleteModal(false)}
           />
           <View style={styles.deleteModal}>
             <Text style={styles.modalTitle}>🗑️ Confirmar exclusão</Text>
-            <Text style={styles.modalMessage}>
-              Excluir "{titulo}"?
-            </Text>
-            <Text style={styles.modalWarning}>
-              Esta ação não pode ser desfeita
-            </Text>
-            
+            <Text style={styles.modalMessage}>Excluir "{titulo}"?</Text>
+            <Text style={styles.modalWarning}>Esta ação não pode ser desfeita</Text>
+
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.modalCancel} 
+              <TouchableOpacity
+                style={styles.modalCancel}
                 onPress={() => setShowDeleteModal(false)}
               >
                 <Text style={styles.modalCancelText}>Cancelar</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.modalDelete} 
+
+              <TouchableOpacity
+                style={styles.modalDelete}
                 onPress={confirmDelete}
               >
                 <Text style={styles.modalDeleteText}>Excluir</Text>
@@ -349,7 +403,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // ← ESTILOS DO MODAL BONITO!
+
+  // Modal
   modalOverlay: {
     position: 'absolute',
     top: 0,

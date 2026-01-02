@@ -8,10 +8,40 @@ type Task = {
   descricao?: string;
   prioridade: 'baixa' | 'media' | 'alta';
   concluida: boolean;
+  dataVencimento?: string;
 };
 
 export default function HomeScreen() {
   const { filteredTasks, toggleTask, totalTasks, completedTasks, setFilter, filter, deleteTask } = useTasks();
+
+  function parseYYYYMMDD(dateStr: string): Date {
+  if (!dateStr) return new Date();
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
+function getDeadlineStatus(dateStr: string): 'atrasada' | 'hoje' | 'futura' {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const deadline = parseYYYYMMDD(dateStr);
+  deadline.setHours(0, 0, 0, 0);
+
+  if (deadline < hoje) return 'atrasada';
+  if (deadline.getTime() === hoje.getTime()) return 'hoje';
+  return 'futura';
+}
+
+function getDeadlineEmoji(dateStr: string): string {
+  const status = getDeadlineStatus(dateStr);
+  if (status === 'atrasada') return '🔴';
+  if (status === 'hoje') return '🟡';
+  return '🟢';
+}
+
+function formatDate(dateStr: string): string {
+  return parseYYYYMMDD(dateStr).toLocaleDateString('pt-BR');
+}
 
   // ← FUNÇÃO DELETE DA LISTA!
   function handleDeleteTask(taskId: string, taskTitle: string) {
@@ -127,6 +157,18 @@ export default function HomeScreen() {
                 ]}>
                   Prioridade: {item.prioridade}
                 </Text>
+                {item.dataVencimento ? (
+                <Text
+                  style={[
+                    styles.taskDeadline,
+                    getDeadlineStatus(item.dataVencimento) === 'atrasada' && styles.deadlineOverdue,
+                    getDeadlineStatus(item.dataVencimento) === 'hoje' && styles.deadlineToday,
+                  ]}
+                >
+                  Vence em: {formatDate(item.dataVencimento)} {getDeadlineEmoji(item.dataVencimento)}
+                </Text>
+              ) : null}
+
               </View>
 
               {/* ← ÍCONE 🗑️ NO CANTO DIREITO! */}
@@ -284,4 +326,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#ef4444',
   },
+    taskDeadline: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#94a3b8', // futura (cinza-azulado)
+  },
+  deadlineToday: {
+    color: '#facc15', // hoje (amarelo)
+  },
+  deadlineOverdue: {
+    color: '#ef4444', // atrasada (vermelho)
+  },
+
 });

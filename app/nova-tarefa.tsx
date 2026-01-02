@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useTasks } from '../contexts/TaskContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type Task = {
   id: string;
@@ -9,14 +10,25 @@ type Task = {
   descricao?: string;
   prioridade: 'baixa' | 'media' | 'alta';
   concluida: boolean;
+  dataVencimento?: string; // "YYYY-MM-DD"
 };
+
+function toYYYYMMDD(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 export default function NovaTarefaScreen() {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [prioridade, setPrioridade] = useState<'baixa' | 'media' | 'alta'>('media');
-  
-  // Agora usa Context ao invés de params!
+
+  // Salva como string para ficar igual ao resto do app
+  const [dataVencimento, setDataVencimento] = useState(''); // "YYYY-MM-DD"
+  const [showPicker, setShowPicker] = useState(false);
+
   const { addTask } = useTasks();
 
   function handleCancelar() {
@@ -35,9 +47,9 @@ export default function NovaTarefaScreen() {
       descricao: descricao.trim() || undefined,
       prioridade,
       concluida: false,
+      dataVencimento: dataVencimento.trim() ? dataVencimento.trim() : undefined,
     };
 
-    // Usa addTask do Context!
     addTask(novaTask);
 
     Alert.alert('Sucesso', 'Tarefa criada!');
@@ -67,6 +79,50 @@ export default function NovaTarefaScreen() {
         multiline
       />
 
+      <Text style={styles.label}>Data de vencimento (opcional)</Text>
+
+      {Platform.OS === 'web' ? (
+        <TextInput
+          style={styles.input}
+          placeholder="AAAA-MM-DD (ex: 2026-01-10)"
+          placeholderTextColor="#6b7280"
+          value={dataVencimento}
+          onChangeText={setDataVencimento}
+        />
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.input}
+            activeOpacity={0.7}
+            onPress={() => setShowPicker(true)}
+          >
+            <Text style={{ color: dataVencimento ? '#e5e7eb' : '#6b7280', fontSize: 16 }}>
+              {dataVencimento ? dataVencimento : 'Selecionar data'}
+            </Text>
+          </TouchableOpacity>
+
+          {showPicker && (
+            <DateTimePicker
+              value={dataVencimento ? new Date(`${dataVencimento}T12:00:00`) : new Date()}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                // iOS/Android: fecha se cancelar
+                if ((event as any)?.type === 'dismissed') {
+                  setShowPicker(false);
+                  return;
+                }
+
+                if (selectedDate) {
+                  setDataVencimento(toYYYYMMDD(selectedDate));
+                }
+                setShowPicker(false);
+              }}
+            />
+          )}
+        </>
+      )}
+
       <Text style={styles.label}>Prioridade</Text>
       <View style={styles.prioridadeContainer}>
         {(['baixa', 'media', 'alta'] as const).map((p) => (
@@ -92,8 +148,9 @@ export default function NovaTarefaScreen() {
         <TouchableOpacity style={styles.botaoCancelar} onPress={handleCancelar}>
           <Text style={styles.botaoCancelarText}>Cancelar</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.botaoSalvar, !titulo.trim() && styles.botaoSalvarDisabled]} 
+
+        <TouchableOpacity
+          style={[styles.botaoSalvar, !titulo.trim() && styles.botaoSalvarDisabled]}
           onPress={handleSalvar}
           disabled={!titulo.trim()}
         >
@@ -104,7 +161,7 @@ export default function NovaTarefaScreen() {
   );
 }
 
-// Styles iguais (mantive do código anterior)
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
