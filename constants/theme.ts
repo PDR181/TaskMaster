@@ -3,51 +3,73 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = "#5FB3D5"; // Azul pastel mais forte
+const tintColorDark = "#E8D5C4"; // Bege pastel suave
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: "#2D4A4A",
+    background: "#FFFFFF",
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: "#7A9A9A",
+    tabIconDefault: "#7A9A9A",
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: "#E8D5C4",
+    background: "#2A2A2A",
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: "#D9CCBC",
+    tabIconDefault: "#D9CCBC",
     tabIconSelected: tintColorDark,
   },
+};
+
+export const PriorityColors = {
+  baixa: "#3B82F6", // Azul
+  media: "#FBBF24", // Amarelo
+  alta: "#EF4444", // Vermelho
+};
+
+export const CardColors = {
+  light: "#E8F0F0", // Cinza azul claríssimo
+  dark: "#E8F0F0", // Mesma cor do light
+};
+
+export const InputTextColors = {
+  light: "#1F2937", // Cinza bem escuro/quase preto
+  dark: "#1F2937", // Cinza bem escuro/quase preto
+};
+
+export const TaskTextColors = {
+  light: "#2D4A4A", // Texto escuro para modo light
+  dark: "#1F2937", // Cinza bem escuro/quase preto para modo dark
 };
 
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
+    sans: "system-ui",
     /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
+    serif: "ui-serif",
     /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
+    rounded: "ui-rounded",
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    rounded:
+      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
