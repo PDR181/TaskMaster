@@ -1,64 +1,54 @@
-# TaskMaster
+# ✅ TaskMaster
 
-TaskMaster é um app To-Do minimalista em React Native + Expo com CRUD completo (Criar, Listar, Editar, Excluir), tags de prioridade e navegação entre telas usando apenas componentes básicos (View, TextInput, Button).
+**TaskMaster** é um aplicativo **To-Do** desenvolvido em **React Native com Expo**, focado na prática dos fundamentos do desenvolvimento mobile.  
+O app permite o **CRUD completo de tarefas** (Criar, Listar, Editar e Excluir), além de organização por **prioridade**, tudo isso utilizando **apenas componentes básicos** do React Native.
+
+📱 Simples, funcional e ideal para aprendizado!
 
 ---
 
-## Como começar
+## ✨ Funcionalidades
 
-1. Instalar dependências
+- 📝 **Criar tarefas** com título, descrição e prioridade  
+- 📋 **Listar tarefas** de forma clara e organizada  
+- ✏️ **Editar tarefas existentes**  
+- 🗑️ **Excluir tarefas**  
+- 🚦 **Tags de prioridade** para melhor organização  
+- 🧭 **Navegação entre telas** utilizando o Expo Router  
+- 🎯 Interface minimalista com componentes nativos  
 
+---
+
+## 🧱 Estrutura do App
+
+O aplicativo é dividido em telas bem definidas:
+
+- **Home** → Lista de tarefas  
+- **Nova Tarefa** → Criação de uma nova tarefa  
+- **Editar Tarefa** → Atualização dos dados de uma tarefa existente
+- **Perfil** → Tela de perfil do usuário
+
+A navegação é feita com o **sistema de rotas baseado em arquivos (file-based routing)** do **Expo Router**, facilitando a organização e manutenção do projeto.
+
+---
+
+## 🚀 Como começar
+
+### 1️⃣ Instalar as dependências
+
+```bash
 npm install
+```
 
+### 1️⃣ Iniciar o aplicativo
 
-2. Iniciar o app
-
+```bash
 npx expo start
+```
 
+## 🛠️ Tecnologias Utilizadas
 
-No output, você pode abrir o app em:
-
-- development build
-- emulador Android
-- simulador iOS
-- Expo Go
-
-O desenvolvimento é feito editando os arquivos dentro do diretório **app**, usando o sistema de rotas baseado em arquivos (file-based routing) do Expo Router.
-
----
-
-## Resetar o projeto de exemplo
-
-Quando quiser um projeto em branco:
-
-npm run reset-project
-
-
-Esse comando move o código de exemplo para **app-example** e deixa a pasta **app** vazia para você desenvolver.
-
----
-
-## Tecnologias
-
-- React Native
-- Expo (SDK recente)
-- TypeScript (template padrão do Expo Router)
-- Componentes básicos: View, Text, TextInput, Button, etc.
-
----
-
-## Objetivo do projeto
-
-- Praticar fundamentos de desenvolvimento mobile com React Native + Expo.  
-- Implementar um CRUD completo de tarefas.  
-- Organizar a arquitetura em telas: Home (lista), Nova Tarefa, Editar Tarefa.  
-- Evoluir depois para filtros, temas e, futuramente, autenticação.
-
----
-
-## Recursos úteis
-
-- Documentação do Expo: https://docs.expo.dev/  
-- Tutorial “Learn Expo”: https://docs.expo.dev/tutorial/introduction/  
-- Comunidade (Discord): https://chat.expo.dev  
-- Repositório do Expo: https://github.com/expo/expo
+- ⚛️ React Native
+- 🚀 Expo (SDK recente)
+- 🟦 TypeScript (template padrão do Expo Router)
+- 🧩 Componentes básicos do React Native, como: View, Text, TextInput, Button
