@@ -5,14 +5,14 @@ import {
   Button,
   FlatList,
   TouchableOpacity,
-  Alert,
   Modal,
   useWindowDimensions,
 } from "react-native";
-import { Link, router } from "expo-router";
+import { Link, router, Redirect } from "expo-router";
 import { useState } from "react";
 import { useTasks } from "../../contexts/TaskContext";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useSession } from "../../contexts/session";
 import {
   Colors,
   PriorityColors,
@@ -39,9 +39,17 @@ export default function HomeScreen() {
     filter,
     deleteTask,
   } = useTasks();
+
   const { colorScheme } = useTheme();
   const colors = Colors[colorScheme];
   const isDark = colorScheme === "dark";
+
+  const { session, isLoading: sessionLoading, signOut } = useSession();
+
+  // 🔐 Guard de autenticação (protege as tabs)
+  if (sessionLoading) return null;
+  if (!session) return <Redirect href="/login" />;
+
   const { width } = useWindowDimensions();
   const maxWidth = Math.min(width * 0.95, 900);
 
@@ -81,7 +89,6 @@ export default function HomeScreen() {
     return parseYYYYMMDD(dateStr).toLocaleDateString("pt-BR");
   }
 
-  // ← FUNÇÃO DELETE DA LISTA!
   function handleDeleteTask(taskId: string, taskTitle: string) {
     setTaskToDelete({ id: taskId, titulo: taskTitle });
     setShowDeleteModal(true);
@@ -98,6 +105,11 @@ export default function HomeScreen() {
   function cancelDelete() {
     setShowDeleteModal(false);
     setTaskToDelete(null);
+  }
+
+  async function handleLogout() {
+    await signOut();
+    router.replace("/login");
   }
 
   return (
@@ -154,18 +166,40 @@ export default function HomeScreen() {
       {/* Conteúdo principal */}
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.contentWrapper, { maxWidth }]}>
-          {/* ← HEADER COM ABAS DE FILTRO! */}
+          {/* HEADER */}
           <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>
-              TaskMaster
+            <View style={styles.headerTopRow}>
+              <Text style={[styles.title, { color: colors.text }]}>
+                TaskMaster
+              </Text>
+
+              <TouchableOpacity
+                onPress={handleLogout}
+                style={[
+                  styles.logoutBtn,
+                  {
+                    borderColor: colors.icon,
+                    backgroundColor: isDark ? CardColors.dark : CardColors.light,
+                  },
+                ]}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.logoutText, { color: colors.text }]}>
+                  Sair
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Usuário logado */}
+            <Text style={[styles.loggedUser, { color: colors.icon }]}>
+              Logado como: {session}
             </Text>
 
-            {/* ← CONTADOR (permanece) */}
             <Text style={[styles.stats, { color: colors.tint }]}>
               📊 {totalTasks} tarefas | {completedTasks} concluídas
             </Text>
 
-            {/* ← ABAS DE FILTRO NOVAS! */}
+            {/* Abas de filtro */}
             <View style={styles.filterTabs}>
               {(["todas", "alta", "media", "baixa"] as const).map((tab) => {
                 const isActive = filter === tab;
@@ -175,9 +209,7 @@ export default function HomeScreen() {
                     style={[
                       styles.filterTab,
                       {
-                        backgroundColor: isDark
-                          ? CardColors.dark
-                          : CardColors.light,
+                        backgroundColor: isDark ? CardColors.dark : CardColors.light,
                         borderColor: isDark ? "#556B7F" : "#cbd5d5",
                       },
                       isActive && { backgroundColor: colors.tint },
@@ -220,14 +252,12 @@ export default function HomeScreen() {
                 style={[
                   styles.taskCard,
                   {
-                    backgroundColor: isDark
-                      ? CardColors.dark
-                      : CardColors.light,
+                    backgroundColor: isDark ? CardColors.dark : CardColors.light,
                   },
                 ]}
               >
                 <View style={styles.taskRow}>
-                  {/* Checkbox CLICÁVEL */}
+                  {/* Checkbox */}
                   <TouchableOpacity
                     style={[
                       styles.checkbox,
@@ -241,9 +271,7 @@ export default function HomeScreen() {
                     activeOpacity={0.7}
                   >
                     {item.concluida && (
-                      <Text
-                        style={[styles.checkmark, { color: colors.background }]}
-                      >
+                      <Text style={[styles.checkmark, { color: colors.background }]}>
                         ✓
                       </Text>
                     )}
@@ -287,6 +315,7 @@ export default function HomeScreen() {
                         {item.descricao}
                       </Text>
                     ) : null}
+
                     <Text
                       style={[
                         styles.taskPriority,
@@ -299,13 +328,14 @@ export default function HomeScreen() {
                     >
                       Prioridade: {item.prioridade}
                     </Text>
+
                     {item.dataVencimento ? (
                       <Text
                         style={[
                           styles.taskDeadline,
                           { color: colors.icon },
-                          getDeadlineStatus(item.dataVencimento) ===
-                            "atrasada" && styles.deadlineOverdue,
+                          getDeadlineStatus(item.dataVencimento) === "atrasada" &&
+                            styles.deadlineOverdue,
                           getDeadlineStatus(item.dataVencimento) === "hoje" &&
                             styles.deadlineToday,
                         ]}
@@ -316,7 +346,7 @@ export default function HomeScreen() {
                     ) : null}
                   </View>
 
-                  {/* ← ÍCONE 🗑️ NO CANTO DIREITO! */}
+                  {/* Lixeira */}
                   <TouchableOpacity
                     style={[
                       styles.deleteIcon,
@@ -353,16 +383,36 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     width: "100%",
   },
+  headerTopRow: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#e5e7eb",
+  },
+  loggedUser: {
+    marginTop: 6,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  logoutBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: "800",
   },
   stats: {
     fontSize: 14,
-    color: "#10b981",
     fontWeight: "600",
-    marginTop: 4,
+    marginTop: 8,
     marginBottom: 8,
   },
   filterTabs: {
@@ -376,28 +426,19 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: "#0f172a",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#334155",
-  },
-  filterTabActive: {
-    backgroundColor: "#10b981",
-    borderColor: "#059669",
   },
   filterTabText: {
-    color: "#9ca3af",
     textAlign: "center",
     fontSize: 13,
     fontWeight: "500",
   },
   filterTabTextActive: {
-    color: "#020617",
     fontWeight: "bold",
   },
   subtitle: {
     fontSize: 14,
-    color: "#9ca3af",
     marginTop: 4,
   },
   actions: {
@@ -410,7 +451,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   taskCard: {
-    backgroundColor: "#0f172a",
     padding: 12,
     borderRadius: 8,
   },
@@ -424,16 +464,10 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: "#6b7280",
     justifyContent: "center",
     alignItems: "center",
   },
-  checkboxChecked: {
-    backgroundColor: "#10b981",
-    borderColor: "#059669",
-  },
   checkmark: {
-    color: "white",
     fontSize: 12,
     fontWeight: "bold",
   },
@@ -441,7 +475,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   taskTitle: {
-    color: "#e5e7eb",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -450,32 +483,23 @@ const styles = StyleSheet.create({
   },
   taskDone: {
     textDecorationLine: "line-through",
-    color: "#6b7280",
   },
   taskDescription: {
-    color: "#9ca3af",
     fontSize: 14,
     marginTop: 4,
   },
-  taskDescriptionDone: {
-    color: "#6b7280",
-  },
+  taskDescriptionDone: {},
   taskPriority: {
-    color: "#facc15",
     fontSize: 12,
     marginTop: 4,
   },
-  taskPriorityDone: {
-    color: "#6b7280",
-  },
-  // ← NOVOS ESTILOS ÍCONE 🗑️!
+  taskPriorityDone: {},
   deleteIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: "rgba(239, 68, 68, 0.2)",
     borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.3)",
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
@@ -488,13 +512,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 12,
     fontWeight: "600",
-    color: "#94a3b8", // futura (cinza-azulado)
   },
   deadlineToday: {
-    color: "#facc15", // hoje (amarelo)
+    color: "#facc15",
   },
   deadlineOverdue: {
-    color: "#ef4444", // atrasada (vermelho)
+    color: "#ef4444",
   },
   modalOverlay: {
     flex: 1,
