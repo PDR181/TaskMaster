@@ -1,9 +1,11 @@
 import { Tabs } from "expo-router";
 import React from "react";
+import { View } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { ThemeToggleButton } from "@/components/theme-toggle-button";
+import { UserProfileButton } from "@/components/user-profile-button";
 import { Colors } from "@/constants/theme";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -15,7 +17,12 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: true,
-        headerRight: () => <ThemeToggleButton />,
+        headerRight: () => (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <UserProfileButton />
+            <ThemeToggleButton />
+          </View>
+        ),
         headerStyle: {
           backgroundColor: Colors[colorScheme ?? "light"].background,
         },

@@ -30,6 +30,16 @@ function RootLayoutContent() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
         <Stack.Screen
+          name="perfil"
+          options={{
+            title: "Perfil",
+            headerRight: () => <ThemeToggleButton />,
+            headerStyle: { backgroundColor: Colors[colorScheme ?? "light"].background },
+            headerTintColor: Colors[colorScheme ?? "light"].text,
+          }}
+        />
+
+        <Stack.Screen
           name="modal"
           options={{
             presentation: "modal",

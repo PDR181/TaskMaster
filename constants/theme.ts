@@ -18,12 +18,12 @@ export const Colors = {
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: "#E8D5C4",
+    text: "#2D4A4A",
     background: "#2A2A2A",
-    tint: tintColorDark,
-    icon: "#D9CCBC",
-    tabIconDefault: "#D9CCBC",
-    tabIconSelected: tintColorDark,
+    tint: tintColorLight,
+    icon: "#7A9A9A",
+    tabIconDefault: "#7A9A9A",
+    tabIconSelected: tintColorLight,
   },
 };
 
@@ -45,7 +45,7 @@ export const InputTextColors = {
 
 export const TaskTextColors = {
   light: "#2D4A4A", // Texto escuro para modo light
-  dark: "#1F2937", // Cinza bem escuro/quase preto para modo dark
+  dark: "#2D4A4A", // Mesma cor do modo light
 };
 
 export const Fonts = Platform.select({
